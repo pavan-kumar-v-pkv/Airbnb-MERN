@@ -1,8 +1,13 @@
 const fs = require('fs');
 const path = require('path');
 const rootDir = require('../utils/pathUtil');
+const { promisify } = require('util');
 
 const favouriteDataPath = path.join(rootDir, 'data', 'favourites.json');
+
+// Convert fs functions to Promise-based versions
+const readFilePromise = promisify(fs.readFile);
+const writeFilePromise = promisify(fs.writeFile);
 
 // Ensure the favourites.json file exists
 const ensureFavouritesFileExists = () => {
@@ -15,38 +20,50 @@ const ensureFavouritesFileExists = () => {
 };
 
 module.exports = class Favourite {
-    static addToFavourites(homeId, callback) {
+    static async addToFavourites(homeId) {
         ensureFavouritesFileExists();
-        Favourite.getFavourites((favourites) => {
+        try {
+            const favourites = await Favourite.getFavourites();
             if (favourites.includes(homeId)) {
                 console.log("Home already in favourites");
-                callback(null); // No error, but no change either
-            }
-            else {
+                return Promise.resolve(); // No change needed
+            } else {
                 favourites.push(homeId);
-                fs.writeFile(favouriteDataPath, JSON.stringify(favourites), callback);
+                return writeFilePromise(favouriteDataPath, JSON.stringify(favourites));
             }
-        });
+        } catch (error) {
+            return Promise.reject(error);
+        }
     }
 
-    static getFavourites(callback) {
+    static async getFavourites() {
         ensureFavouritesFileExists();
-        fs.readFile(favouriteDataPath, (err, fileContent) => {
-            callback(!err ? JSON.parse(fileContent) : []);
-        });
+        try {
+            const fileContent = await readFilePromise(favouriteDataPath);
+            return JSON.parse(fileContent);
+        } catch (error) {
+            console.error('Error reading favourites:', error);
+            return [];
+        }
     }
 
-    static removeFavourite(homeId, callback) {
-        Favourite.getFavourites((favourites) => {
+    static async removeFavourite(homeId) {
+        try {
+            const favourites = await Favourite.getFavourites();
             const updatedFavourites = favourites.filter(id => id !== homeId);
-            fs.writeFile(favouriteDataPath, JSON.stringify(updatedFavourites), callback);
-        });
+            return writeFilePromise(favouriteDataPath, JSON.stringify(updatedFavourites));
+        } catch (error) {
+            return Promise.reject(error);
+        }
     }
 
-    static deleteById(delHomeId, callback) {
-        Favourite.getFavourites(homeIds => {
-            homeIds = homeIds.filter(id => id !== delHomeId);
-            fs.writeFile(favouriteDataPath, JSON.stringify(homeIds), callback);
-        })
+    static async deleteById(delHomeId) {
+        try {
+            const homeIds = await Favourite.getFavourites();
+            const updatedIds = homeIds.filter(id => id !== delHomeId);
+            return writeFilePromise(favouriteDataPath, JSON.stringify(updatedIds));
+        } catch (error) {
+            return Promise.reject(error);
+        }
     }
 }

@@ -1,0 +1,106 @@
+const Favourite = require("../models/favourite");
+const Home = require("../models/home");
+
+exports.getIndex = (req, res, next) => {
+    Home.getAllHomes((registeredHomes) => {
+        console.log(registeredHomes);
+        res.render("store/index", { registeredHomes: registeredHomes, 
+            pageTitle: "Airbnb Home", 
+            currentPage: 'index' 
+        });
+    });
+}
+
+exports.getHomes = (req, res, next) => {
+    Home.getAllHomes((registeredHomes) => {
+        console.log(registeredHomes);
+        res.render("store/home-list", { registeredHomes: registeredHomes, 
+            pageTitle: "Homes List", 
+            currentPage: 'Homes' 
+        });
+    });
+}
+
+exports.getHomeDetails = (req, res, next) => {
+    const homeId = req.params.homeId;
+    Home.getHomeById(homeId, home => {
+        if(!home){
+            console.log("Home not found for ID:", homeId);
+            res.redirect('/homes');
+            return;
+        }
+        else{
+            console.log("Home Details:", home);
+            console.log("Home ID:", home.id);
+            res.render("store/home-details", { 
+                home: home, 
+                pageTitle: "Home Details", 
+                currentPage: 'Homes' });
+        }
+    })
+};
+
+exports.getBookings = (req, res, next) => {
+    res.render("store/bookings", { pageTitle: "My Bookings", 
+        currentPage: 'bookings' });
+};
+
+exports.getFavouriteList = (req, res, next) => {
+    // First get all the favourite home IDs
+    Favourite.getFavourites((favouriteIds) => {
+        if (favouriteIds.length === 0) {
+            // No favorites yet
+            return res.render("store/favourite-list", { 
+                registeredHomes: [], 
+                pageTitle: "My favourites", 
+                currentPage: 'favourites' 
+            });
+        }
+        
+        // Then get all homes and filter them to show only the favorites
+        Home.getAllHomes((allHomes) => {
+            const favouriteHomes = allHomes.filter(home => favouriteIds.includes(home.id));
+            console.log("Favourite homes:", favouriteHomes);
+            
+            res.render("store/favourite-list", { 
+                registeredHomes: favouriteHomes, 
+                pageTitle: "My favourites", 
+                currentPage: 'favourites' 
+            });
+        });
+    });
+};
+
+exports.postAddToFavourites = (req, res, next) => {
+    const homeId = req.body.homeId;
+    console.log("Adding to favourites:", homeId);
+    
+    if (!homeId) {
+        return res.status(400).send("Home ID is required");
+    }
+    
+    Favourite.addToFavourites(homeId, (err) => {
+        if(err){
+            console.log("Error adding to favourites:", err);
+        }
+        // Always redirect to the favourites page
+        res.redirect('/favourites');
+    });
+};
+
+exports.postRemoveFavourite = (req, res, next) => {
+    const homeId = req.body.homeId;
+    console.log("Removing from favourites:", homeId);
+    
+    if (!homeId) {
+        return res.status(400).send("Home ID is required");
+    }
+    
+    Favourite.removeFavourite(homeId, (err) => {
+        if(err){
+            console.log("Error removing from favourites:", err);
+        }
+        res.redirect('/favourites');
+    });
+};
+

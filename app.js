@@ -7,31 +7,43 @@ const storeRouter = require('./routes/storeRouter');
 const hostRouter = require('./routes/hostRouter');
 const rootDir = require('./utils/pathUtil');
 const errorsController = require('./controllers/errors');
+const db = require('./utils/databaseUtil');
 
 const app = express();
 
-// Debug logging
-console.log('storeRouter type:', typeof storeRouter);
-console.log('hostRouter type:', typeof hostRouter);
-console.log('errorsController type:', typeof errorsController);
+// Logging middleware - place before routes
+app.use("/", (req, res, next) => {
+    console.log("Request received:", req.method, req.url);
+    next();
+});
 
+// Setup view engine
 app.set('view engine', 'ejs');
-app.set('views', path.join(rootDir, 'views')); // Setting the views directory
+app.set('views', path.join(rootDir, 'views')); 
 
-app.use(express.static(path.join(rootDir, 'public'))); // Serving static files from 'public' directory
-app.use(express.urlencoded({ extended: true })); // Middleware to parse URL-encoded bodies
+// Middleware
+app.use(express.static(path.join(rootDir, 'public'))); 
+app.use(express.urlencoded({ extended: true })); 
+
+// Routes
 app.use(storeRouter);
 app.use("/host", hostRouter);
-
-app.use("/", (req, res, next) => {
-    console.log(req.url, req.method);
-    next(); 
-})
 
 // handling 404 - page not found
 app.use(errorsController.pageNotFound);
 
+// Start server after checking database connection
 const port = 3000;
-app.listen(port, () => {
-    console.log(`Server is running on address http://localhost:${port}`);
-})
+
+// Test database connection before starting server
+db.execute('SELECT 1')
+    .then(() => {
+        console.log('Database connection successful');
+        app.listen(port, () => {
+            console.log(`Server is running on address http://localhost:${port}`);
+        });
+    })
+    .catch(err => {
+        console.error('Database connection failed:', err);
+        console.error('Make sure MySQL server is running and the database credentials are correct in config/database.json');
+    });
