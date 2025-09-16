@@ -31,9 +31,10 @@ exports.getEditHome = (req, res, next) => {
 
 exports.getHostHomes = (req, res, next) => {
     Home.getAllHomes((registeredHomes) => {
-        console.log(registeredHomes);
+        console.log("Host homes list:", registeredHomes);
+        
         res.render("host/host-home-list", {
-            registeredHomes: registeredHomes,
+            registeredHomes: registeredHomes || [],
             pageTitle: "Host Homes List",
             currentPage: 'host-homes'
         });
@@ -44,8 +45,10 @@ exports.postAddHome = (req, res, next) => {
     console.log('Home registration successful:', req.body);
     const { title, description, price, location, bedrooms, bathrooms, amenities } = req.body;
     const newHome = new Home(title, description, price, location, bedrooms, bathrooms, amenities);
-    newHome.save();
-    res.redirect("/host/host-home-list");
+    newHome.save(() => {
+        console.log("Home saved and redirecting");
+        res.redirect("/host/host-home-list");
+    });
 }
 
 exports.postEditHome = (req, res, next) => {
@@ -53,6 +56,24 @@ exports.postEditHome = (req, res, next) => {
     const { homeId, title, description, price, location, bedrooms, bathrooms, amenities } = req.body;
     const updatedHome = new Home(title, description, price, location, bedrooms, bathrooms, amenities);
     updatedHome.id = homeId;
-    updatedHome.save();
-    res.redirect("/host/host-home-list");
+    updatedHome.save((err) => {
+        if (err) {
+            console.error("Error saving home:", err);
+            return res.status(500).send("Error saving home");
+        }
+        res.redirect("/host/host-home-list");
+    });
+}
+
+exports.postDeleteHome = (req, res, next) => {
+    const homeId = req.params.homeId;
+    console.log('Came to delete Home', homeId);
+    Home.deleteById(homeId, error => {
+        if (error) {
+            console.error('Error deleting home:', error);
+        } else {
+            console.log('Home deleted successfully');
+        }
+        res.redirect("/host/host-home-list");
+    });
 }
