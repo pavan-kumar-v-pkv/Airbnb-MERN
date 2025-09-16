@@ -1,0 +1,51 @@
+<%- include('../partials/head.ejs') %>
+</head>
+<body class="airbnb-body">
+    <%- include('../partials/nav.ejs') %>
+    <main class="airbnb-main">
+        <h2 class="airbnb-title">Add a New Home</h2>
+        <form action="/host/add-home" method="POST" class="space-y-6">
+            <div>
+                <input type="text" name="title" placeholder="Home Title" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            </div>
+            <div>
+                <textarea name="description" placeholder="Home Description" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
+            </div>
+            <div>
+                <input type="number" name="price" placeholder="Price per Night" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            </div>
+            <div>
+                <input type="text" name="location" placeholder="Location" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            </div>
+            <div class="flex gap-4">
+                <div class="w-1/2">
+                    <input type="number" name="bedrooms" placeholder="Number of Bedrooms" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                <div class="w-1/2">
+                    <input type="number" name="bathrooms" placeholder="Number of Bathrooms" required
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+            </div>
+            <div>
+                <input type="text" name="amenities" placeholder="Amenities (comma separated)" required
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">
+            </div>
+            <div class="flex gap-4">
+                <button type="submit" 
+                        class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300">
+                    Add Home
+                </button>
+                <a href="/" 
+                   class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 no-underline inline-block">
+                    Go back to home
+                </a>
+            </div>
+        </form>
+    </main>
+</body>
+</html>

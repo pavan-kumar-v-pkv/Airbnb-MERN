@@ -1,0 +1,70 @@
+<%- include('../partials/head.ejs') %>
+</head>
+
+<body class="airbnb-body bg-gray-50">
+    <%- include('../partials/nav.ejs') %>
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        <!-- Back Button -->
+        <div class="mb-6">
+            <a href="/homes" class="text-gray-600 hover:text-red-500 flex items-center gap-2 transition duration-200">
+                &larr; Back to listings
+            </a>
+        </div>
+
+        <!-- Property Title & Location -->
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2"><%= home.title %></h1>
+            <div class="flex items-center text-gray-600">
+                <span class="mr-1">📍</span> <%= home.location %>
+            </div>
+        </div>
+
+        <!-- Main Image -->
+        <div class="mb-8">
+            <img src="https://source.unsplash.com/random/800x600/?apartment" alt="Main image of <%= home.title %>" class="w-full h-96 object-cover rounded-lg">
+        </div>
+
+        <!-- Main Content - Simplified Layout -->
+        <div class="mb-8">
+            <!-- Basic Info -->
+            <div class="pb-6 border-b border-gray-200 mb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-2">$<%= home.price %> per night</h2>
+                <p class="text-gray-600"><%= home.bedrooms %> bedrooms · <%= home.bathrooms %> bathrooms</p>
+                <p class="text-xs text-gray-500 mt-2">Home ID: <%= home.id %></p>
+            </div>
+
+            <!-- Description -->
+            <div class="pb-6 border-b border-gray-200 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">About this place</h2>
+                <p class="text-gray-600 leading-relaxed"><%= home.description %></p>
+            </div>
+
+            <!-- Amenities -->
+            <div class="pb-6 border-b border-gray-200 mb-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">What this place offers</h2>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <% const amenitiesArray = Array.isArray(home.amenities) ? home.amenities : home.amenities.split(',').map(a => a.trim()); %>
+                    <% amenitiesArray.forEach(amenity => { %>
+                        <div class="flex items-center">
+                            <span class="text-gray-400 mr-3">✓</span>
+                            <span><%= amenity %></span>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Action Buttons Section -->
+            <div class="flex flex-col sm:flex-row gap-4 mt-6">
+                <div class="flex-1">
+                    <button type="button" class="w-full py-2 px-4 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-4 rounded-md shadow-sm">
+                        Reserve
+                    </button>
+                </div>
+                <div class="flex-1">
+                    <%- include('../partials/favourite.ejs') %>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

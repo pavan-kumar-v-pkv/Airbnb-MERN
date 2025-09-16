@@ -1,0 +1,17 @@
+<header class="airbnb-header bg-gradient-to-r from-red-500 to-pink-600 shadow-md">
+    <nav class="airbnb-nav container mx-auto px-4 py-4 flex justify-between items-center">
+        <a href="/" class="text-white text-2xl font-bold flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            Airbnb
+        </a>
+        <ul class="flex space-x-6">
+            <li><a href="/homes" class="text-white hover:text-red-100 font-medium transition-colors duration-200 <%= typeof currentPage !== 'undefined' && currentPage === 'Homes' ? 'border-b-2 border-white pb-1' : '' %>">Explore</a></li>
+            <li><a href="/favourites" class="text-white hover:text-red-100 font-medium transition-colors duration-200 <%= typeof currentPage !== 'undefined' && currentPage === 'favourites' ? 'border-b-2 border-white pb-1' : '' %>">Favourites</a></li>
+            <li><a href="/store/bookings" class="text-white hover:text-red-100 font-medium transition-colors duration-200 <%= typeof currentPage !== 'undefined' && currentPage === 'bookings' ? 'border-b-2 border-white pb-1' : '' %>">Bookings</a></li>
+            <li><a href="/host/host-home-list" class="text-white hover:text-red-100 font-medium transition-colors duration-200 <%= typeof currentPage !== 'undefined' && currentPage === 'host-homes' ? 'border-b-2 border-white pb-1' : '' %>">Host Homes</a></li>
+            <li><a href="/host/add-home" class="text-white hover:text-red-100 font-medium transition-colors duration-200 <%= typeof currentPage !== 'undefined' && currentPage === 'add-home' ? 'border-b-2 border-white pb-1' : '' %>">Add Home</a></li>
+        </ul>
+    </nav>
+</header>
