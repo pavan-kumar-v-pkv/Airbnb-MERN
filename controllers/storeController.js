@@ -103,3 +103,4 @@ exports.postRemoveFavourite = (req, res, next) => {
         res.redirect('/favourites');
     });
 };
+

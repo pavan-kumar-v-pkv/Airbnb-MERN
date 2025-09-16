@@ -18,10 +18,15 @@ module.exports = class Home {
     }
 
     save() {
-        this.id = new Date().getTime().toString(); // Ensure unique ID on save
+        
         Home.getAllHomes(existingHomes => {
-            existingHomes.push(this);
-            
+            if (this.id) { // edit existing home
+                existingHomes = existingHomes.map(home => home.id === this.id ? this : home);``
+            }
+            else { // add new home
+                this.id = new Date().getTime().toString(); // Ensure unique ID on save
+                existingHomes.push(this);
+            }
             fs.writeFile(homeDataPath, JSON.stringify(existingHomes), (err) => {
                 if (err) {
                     console.error('Error writing to file', err);
@@ -44,10 +49,10 @@ module.exports = class Home {
         });
     }
 
-    static getHomeById(homeId, callback){
+    static getHomeById(homeId, callback) {
         Home.getAllHomes(homes => {
             const homeFound = homes.find(h => h.id === homeId);
-            callback(homeFound        );
+            callback(homeFound);
         })
     }
 }

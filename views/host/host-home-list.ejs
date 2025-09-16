@@ -31,12 +31,12 @@
                                             <div class="col-span-2"><strong>Amenities:</strong> <%= home.amenities %></div>
                                         </div>
                                     </div>
-                                    <button class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 ml-4 flex-shrink-0">
+                                    <a href="/host/edit-home/<%= home.id %>/?editing=true" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 ml-4 flex-shrink-0">
                                         Edit
-                                    </button>
-                                    <button class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 ml-4 flex-shrink-0">
+                                    </a>
+                                    <a href="/host/delete-home/<%= home.id %>" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-300 ml-4 flex-shrink-0">
                                         Delete
-                                    </button>
+                                    </a>
                                 </div>
                             </li>
                         <% }) %>
