@@ -2,7 +2,7 @@ const Favourite = require("../models/favourite");
 const Home = require("../models/home");
 
 exports.getIndex = (req, res, next) => {
-    Home.getAllHomes().then(([registeredHomes, fields]) => {
+    Home.getAllHomes().then(registeredHomes => {
         res.render("store/index", { 
             registeredHomes: registeredHomes, 
             pageTitle: "Airbnb Home", 
@@ -26,7 +26,7 @@ exports.getIndex = (req, res, next) => {
 }
 
 exports.getHomes = (req, res, next) => {
-    Home.getAllHomes().then(([registeredHomes, fields]) => {
+    Home.getAllHomes().then(registeredHomes => {
         console.log(registeredHomes);
         res.render("store/home-list", { 
             registeredHomes: registeredHomes, 
@@ -45,8 +45,7 @@ exports.getHomes = (req, res, next) => {
 
 exports.getHomeDetails = (req, res, next) => {
     const homeId = req.params.homeId;
-    Home.getHomeById(homeId).then(([homes, fields]) => {
-        const home = homes[0];
+    Home.getHomeById(homeId).then(home => {
         if(!home){
             console.log("Home not found for ID:", homeId);
             res.redirect('/homes');
@@ -54,7 +53,7 @@ exports.getHomeDetails = (req, res, next) => {
         }
         else{
             console.log("Home Details:", home);
-            console.log("Home ID:", home.id);
+            console.log("Home ID:", home._id);
             res.render("store/home-details", { 
                 home: home, 
                 pageTitle: "Home Details", 
@@ -86,8 +85,14 @@ exports.getFavouriteList = (req, res, next) => {
             
             // Then get all homes and filter them to show only the favorites
             Home.getAllHomes()
-                .then(([allHomes, fields]) => {
-                    const favouriteHomes = allHomes.filter(home => favouriteIds.includes(home.id));
+                .then(allHomes => {
+                    // Convert all ObjectIds to strings for comparison
+                    const favouriteHomeIds = favouriteIds.map(id => id.toString());
+                    
+                    const favouriteHomes = allHomes.filter(home => 
+                        favouriteHomeIds.includes(home._id.toString())
+                    );
+                    
                     console.log("Favourite homes:", favouriteHomes);
                     
                     res.render("store/favourite-list", { 
@@ -130,7 +135,7 @@ exports.postAddToFavourites = (req, res, next) => {
             console.error("Error adding to favourites:", err);
             res.status(500).render('error', { 
                 pageTitle: 'Error', 
-                message: 'Failed to add to favourites' 
+                message: 'Failed to add to favourites: ' + err.message
             });
         });
 };
@@ -151,7 +156,7 @@ exports.postRemoveFavourite = (req, res, next) => {
             console.error("Error removing from favourites:", err);
             res.status(500).render('error', { 
                 pageTitle: 'Error', 
-                message: 'Failed to remove from favourites' 
+                message: 'Failed to remove from favourites: ' + err.message
             });
         });
 };

@@ -5,7 +5,7 @@
     <main class="airbnb-main">
         <h2 class="airbnb-title"><%= editing ? "Edit" : "Add" %> a New Home</h2>
         <form action="/host/<%= editing ? 'edit-home/' : 'add-home' %>" method="POST" class="space-y-6">
-            <input type="hidden" name="homeId" value="<%= editing ? home.id : '' %>">
+            <input type="hidden" name="homeId" value="<%= editing ? home._id : '' %>">
             <div>
                 <input type="text" name="title" value="<%= editing ? home.title : '' %>" placeholder="Home Title" required
                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent">

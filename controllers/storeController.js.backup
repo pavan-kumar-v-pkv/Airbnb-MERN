@@ -31,7 +31,7 @@ exports.getHomeDetails = (req, res, next) => {
         }
         else{
             console.log("Home Details:", home);
-            console.log("Home ID:", home.id);
+            console.log("Home ID:", home._id);
             res.render("store/home-details", { 
                 home: home, 
                 pageTitle: "Home Details", 
@@ -59,7 +59,7 @@ exports.getFavouriteList = (req, res, next) => {
         
         // Then get all homes and filter them to show only the favorites
         Home.getAllHomes((allHomes) => {
-            const favouriteHomes = allHomes.filter(home => favouriteIds.includes(home.id));
+            const favouriteHomes = allHomes.filter(home => favouriteIds.includes(home._id));
             console.log("Favourite homes:", favouriteHomes);
             
             res.render("store/favourite-list", { 

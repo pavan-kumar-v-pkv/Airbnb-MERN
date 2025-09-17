@@ -1,46 +1,36 @@
-const fs = require('fs');
-const path = require('path');
-const rootDir = require('../utils/pathUtil');
-const { promisify } = require('util');
-
-const favouriteDataPath = path.join(rootDir, 'data', 'favourites.json');
-
-// Convert fs functions to Promise-based versions
-const readFilePromise = promisify(fs.readFile);
-const writeFilePromise = promisify(fs.writeFile);
-
-// Ensure the favourites.json file exists
-const ensureFavouritesFileExists = () => {
-    if (!fs.existsSync(path.dirname(favouriteDataPath))) {
-        fs.mkdirSync(path.dirname(favouriteDataPath), { recursive: true });
-    }
-    if (!fs.existsSync(favouriteDataPath)) {
-        fs.writeFileSync(favouriteDataPath, JSON.stringify([]));
-    }
-};
+const { ObjectId } = require('mongodb');
+const { getDb } = require('../utils/databaseUtil');
 
 module.exports = class Favourite {
     static async addToFavourites(homeId) {
-        ensureFavouritesFileExists();
         try {
-            const favourites = await Favourite.getFavourites();
-            if (favourites.includes(homeId)) {
+            const db = getDb();
+            const favourites = await this.getFavourites();
+            
+            // Check if the homeId is already in favourites
+            if (favourites.some(id => id.toString() === homeId.toString())) {
                 console.log("Home already in favourites");
                 return Promise.resolve(); // No change needed
-            } else {
-                favourites.push(homeId);
-                return writeFilePromise(favouriteDataPath, JSON.stringify(favourites));
+            } 
+            
+            // Validate ObjectId format
+            if (!ObjectId.isValid(homeId)) {
+                return Promise.reject(new Error("Invalid home ID format"));
             }
+            
+            // Add to favourites collection
+            return db.collection('favourites').insertOne({ homeId: new ObjectId(String(homeId)) });
         } catch (error) {
+            console.error("Error adding to favourites:", error);
             return Promise.reject(error);
         }
     }
 
     static async getFavourites() {
-        ensureFavouritesFileExists();
         try {
-            const fileContent = await readFilePromise(favouriteDataPath);
-            return JSON.parse(fileContent);
+            const db = getDb();
+            const favouritesData = await db.collection('favourites').find().toArray();
+            return favouritesData.map(favourite => favourite.homeId);
         } catch (error) {
             console.error('Error reading favourites:', error);
             return [];
@@ -49,20 +39,32 @@ module.exports = class Favourite {
 
     static async removeFavourite(homeId) {
         try {
-            const favourites = await Favourite.getFavourites();
-            const updatedFavourites = favourites.filter(id => id !== homeId);
-            return writeFilePromise(favouriteDataPath, JSON.stringify(updatedFavourites));
+            const db = getDb();
+            
+            // Validate ObjectId format
+            if (!ObjectId.isValid(homeId)) {
+                return Promise.reject(new Error("Invalid home ID format"));
+            }
+            
+            return db.collection('favourites').deleteOne({ homeId: new ObjectId(homeId) });
         } catch (error) {
+            console.error("Error removing from favourites:", error);
             return Promise.reject(error);
         }
     }
 
     static async deleteById(delHomeId) {
         try {
-            const homeIds = await Favourite.getFavourites();
-            const updatedIds = homeIds.filter(id => id !== delHomeId);
-            return writeFilePromise(favouriteDataPath, JSON.stringify(updatedIds));
+            const db = getDb();
+            
+            // Validate ObjectId format
+            if (!ObjectId.isValid(delHomeId)) {
+                return Promise.reject(new Error("Invalid home ID format"));
+            }
+            
+            return db.collection('favourites').deleteOne({ homeId: new ObjectId(delHomeId) });
         } catch (error) {
+            console.error("Error deleting from favourites:", error);
             return Promise.reject(error);
         }
     }

@@ -21,7 +21,7 @@ module.exports = class Home {
         Home.getAllHomes(existingHomes => {
             try {
                 if (this.id) { // edit existing home
-                    const index = existingHomes.findIndex(home => home.id === this.id);
+                    const index = existingHomes.findIndex(home => home._id === this.id);
                     if (index !== -1) {
                         existingHomes[index] = this;
                     } else {

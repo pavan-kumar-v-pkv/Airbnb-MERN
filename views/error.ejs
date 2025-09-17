@@ -1,0 +1,15 @@
+<%- include('./partials/head.ejs') %>
+</head>
+<body class="airbnb-body">
+    <%- include('./partials/nav.ejs') %>
+    <main class="airbnb-main">
+        <div class="bg-white p-8 rounded-lg shadow-md max-w-2xl mx-auto mt-10">
+            <h2 class="airbnb-title text-red-500 mb-6">Error</h2>
+            <p class="text-gray-700 mb-6"><%= message %></p>
+            <a href="/" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 no-underline inline-block">
+                Back to Home
+            </a>
+        </div>
+    </main>
+</body>
+</html>
