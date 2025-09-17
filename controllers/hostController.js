@@ -61,39 +61,13 @@ exports.getHostHomes = (req, res, next) => {
 
 exports.postAddHome = (req, res, next) => {
     console.log('Home registration request received:', req.body);
+    const { title, description, price, location, bedrooms, bathrooms, amenities } = req.body;
     
-    // Convert string values to appropriate types
-    const title = req.body.title;
-    const description = req.body.description;
-    const price = parseFloat(req.body.price);
-    const location = req.body.location;
-    const bedrooms = parseInt(req.body.bedrooms, 10);
-    const bathrooms = parseInt(req.body.bathrooms, 10);
-    const amenities = req.body.amenities;
-    
-    console.log('Converted values:', {
-        title, description, price, location, bedrooms, bathrooms, amenities
-    });
-    
+    // Create home without setting id initially
     const newHome = new Home(title, description, price, location, bedrooms, bathrooms, amenities);
-    
-    newHome.save()
-        .then(([result]) => {
-            console.log("Home saved successfully with ID:", newHome.id);
-            console.log("Database result:", result);
-            
-            // Wait a brief moment before redirecting to ensure the transaction is complete
-            setTimeout(() => {
-                res.redirect("/host/host-home-list");
-            }, 100);
-        })
-        .catch(err => {
-            console.error("Error saving home:", err);
-            res.status(500).render('error', { 
-                pageTitle: 'Error', 
-                message: 'Failed to save home: ' + err.message 
-            });
-        });
+    newHome.save().then(() => {
+        console.log('Home saved successfully');
+    })
 }
 
 exports.postEditHome = (req, res, next) => {

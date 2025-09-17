@@ -1,37 +1,28 @@
-const mysql = require("mysql2");
-const fs = require('fs');
-const path = require('path');
+const mongodb = require('mongodb');
 
-// Simple error handling for config file
-let mysqlConfig;
-try {
-    const configPath = path.join(__dirname, '..', 'config', 'database.json');
-    const config = JSON.parse(fs.readFileSync(configPath));
-    mysqlConfig = config.mysql;
-} catch (error) {
-    console.error('Error loading database config, using defaults:', error.message);
-    // Fallback configuration
-    mysqlConfig = {
-        host: 'localhost',
-        port: 3306,
-        user: 'root',
-        password: '',
-        database: 'airbnb',
-        connectionLimit: 10
-    };
+const MongoClient = mongodb.MongoClient;
+
+const MONGO_URL = "mongodb+srv://pkvstarscream:Pkv2509%402002@cluster0.l18vnyh.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+let _db;
+
+const mongoConnect = (callback) => {
+    MongoClient.connect(MONGO_URL).then(client => {
+        _db = client.db("airbnb");
+        callback(client);
+    }).catch(err => {
+        console.log("Error connecting to MongoDB", err);
+        throw err;
+    });
 }
 
-// Create the connection pool
-const pool = mysql.createPool({
-    host: mysqlConfig.host,
-    port: mysqlConfig.port,
-    user: mysqlConfig.user,
-    password: mysqlConfig.password,
-    database: mysqlConfig.database,
-    waitForConnections: true,
-    connectionLimit: mysqlConfig.connectionLimit || 10,
-    queueLimit: 0
-});
+const getDb = () => {
+    if (!_db) {
+        throw new Error("Mongo not connected or No database found!");
+    }
+    return _db;
+};
 
-// Export the promise-based pool
-module.exports = pool.promise();
+module.exports = {
+    mongoConnect,
+    getDb
+};

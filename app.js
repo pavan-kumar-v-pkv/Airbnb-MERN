@@ -7,7 +7,7 @@ const storeRouter = require('./routes/storeRouter');
 const hostRouter = require('./routes/hostRouter');
 const rootDir = require('./utils/pathUtil');
 const errorsController = require('./controllers/errors');
-const db = require('./utils/databaseUtil');
+const { mongoConnect } = require('./utils/databaseUtil');
 
 const app = express();
 
@@ -34,16 +34,9 @@ app.use(errorsController.pageNotFound);
 
 // Start server after checking database connection
 const port = 3000;
-
-// Test database connection before starting server
-db.execute('SELECT 1')
-    .then(() => {
-        console.log('Database connection successful');
-        app.listen(port, () => {
-            console.log(`Server is running on address http://localhost:${port}`);
-        });
-    })
-    .catch(err => {
-        console.error('Database connection failed:', err);
-        console.error('Make sure MySQL server is running and the database credentials are correct in config/database.json');
+mongoConnect(client =>{
+    console.log("Connected to MongoDB", client);
+    app.listen(port, () => {
+        console.log(`Server is running on address http://localhost:${port}`);
     });
+})
