@@ -1,0 +1,9 @@
+        <% if (errors && errors.length > 0) { %>
+          <div class="mb-4">
+            <ul class="list-disc list-inside text-red-500">
+              <% errors.forEach(function(error) { %>
+                <li><%= error %></li>
+              <% }); %>
+            </ul>
+          </div>
+        <% } %>

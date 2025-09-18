@@ -14,6 +14,7 @@ const errorsController = require("./controllers/errors");
 const { default: mongoose } = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const User = require('./models/user');
 const app = express();
 
 
@@ -37,8 +38,33 @@ app.use(session({
 app.use((req, res, next) => {
   // initalize req.isLoggedIn based on session
   req.isLoggedIn = req.session?.isLoggedIn || false;
+  
+  // If user is logged in, fetch user data
+  if (req.session.user) {
+    User.findById(req.session.user._id)
+      .then(user => {
+        if (user) {
+          req.user = user;
+        }
+        next();
+      })
+      .catch(err => {
+        console.error('Error fetching user:', err);
+        next();
+      });
+  } else {
+    next();
+  }
+});
+
+// Add user to all views
+app.use((req, res, next) => {
+  res.locals.isLoggedIn = req.isLoggedIn;
+  res.locals.user = req.user || null;
   next();
 });
+
+app.use(authRouter);
 app.use(authRouter);
 app.use(storeRouter);
 app.use("/host", (req, res, next) => {

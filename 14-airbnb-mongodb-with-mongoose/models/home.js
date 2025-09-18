@@ -1,6 +1,5 @@
 const { ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
-const Favourite = require('../../models/favourite');
 
 // _id is automatically created by MongoDB
 const homeSchema = new mongoose.Schema({
@@ -12,11 +11,11 @@ const homeSchema = new mongoose.Schema({
   description: {type: String}
 })
 
-homeSchema.pre('findOneAndDelete', async function(next) {
-  const home = this.getQuery()._id;
-  await Favourite.deleteMany({ houseId: home });
-  next();
-})
+// homeSchema.pre('findOneAndDelete', async function(next) {
+//   const home = this.getQuery()._id;
+//   await Favourite.deleteMany({ houseId: home });
+//   next();
+// })
 
 module.exports = mongoose.model('Home', homeSchema);
 /*

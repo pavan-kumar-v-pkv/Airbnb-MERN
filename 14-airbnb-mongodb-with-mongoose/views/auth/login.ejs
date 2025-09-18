@@ -6,11 +6,17 @@
       <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Login with your info</h1>
 
       <form action="/login" method="POST" class="max-w-md mx-auto">
+        <% if (locals.errorMessage) { %>
+          <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">
+            <%= errorMessage %>
+          </div>
+        <% } %>
         <input
-          type="text"
-          name="username"
+          type="email"
+          name="email"
           required
-          placeholder="Email/Username"
+          placeholder="Email"
+          value="<%= locals.oldInput ? oldInput.email : '' %>"
           class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
         <input
           type="password"
@@ -19,6 +25,11 @@
           placeholder="Password"
           class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"/>
         <input type="submit" value="Login" class="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition duration-300" />
+        <div class="mt-4 text-center">
+          <p class="text-gray-600">Don't have an account? 
+            <a href="/signup" class="text-red-500 hover:text-red-700 font-medium">Sign up here</a>
+          </p>
+        </div>
       </form>
     </main>
   </body>
