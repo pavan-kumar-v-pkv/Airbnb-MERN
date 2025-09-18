@@ -2,6 +2,7 @@
 const path = require('path');
 
 // External Module
+require('dotenv').config(); // Load environment variables
 const express = require('express');
 const cookieParser = require('cookie-parser');
 
@@ -16,20 +17,59 @@ const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const User = require('./models/user');
 const app = express();
-
+const multer = require('multer');
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
 
-const MONGO_URL = "mongodb+srv://pkvstarscream:Pkv2509%402002@cluster0.l18vnyh.mongodb.net/airbnb?retryWrites=true&w=majority&appName=Cluster0";
+// Construct MongoDB URL from environment variables
+const MONGO_USERNAME = process.env.MONGODB_USERNAME;
+const MONGO_PASSWORD = process.env.MONGODB_PASSWORD;
+const MONGO_CLUSTER = process.env.MONGODB_CLUSTER;
+const MONGO_DB = process.env.MONGODB_DATABASE;
+
+const MONGO_URL = `mongodb+srv://${MONGO_USERNAME}:${MONGO_PASSWORD}@${MONGO_CLUSTER}/${MONGO_DB}?retryWrites=true&w=majority&appName=Cluster0`;
 const store = new MongoDBStore({
   uri: MONGO_URL,
   collection:'sessions'
 });
 
+const randomString = (length) => {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/png') || file.mimetype.startsWith('image/jpeg') || file.mimetype.startsWith('image/jpg')) {
+    cb(null, true);
+  } else {
+    cb(new Error('Not an image! Please upload an image.'), false);
+  }
+}
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, randomString(10) + '-' + file.originalname);
+  }
+})
+const multerOption = {
+  storage: storage,
+  fileFilter: fileFilter
+}
+
 app.use(express.urlencoded({ extended: true }));
+app.use(multer(multerOption).single('photo'))
+app.use(express.static(path.join(rootDir, 'public')))
+app.use('/uploads', express.static(path.join(rootDir, 'uploads')))
+
 app.use(session({
-  secret: "my secret key",
+  secret: process.env.SESSION_SECRET || "fallback_secret_key",
   resave: false,
   saveUninitialized: true,
   store: store
@@ -65,7 +105,6 @@ app.use((req, res, next) => {
 });
 
 app.use(authRouter);
-app.use(authRouter);
 app.use(storeRouter);
 app.use("/host", (req, res, next) => {
   if(req.isLoggedIn){
@@ -76,7 +115,6 @@ app.use("/host", (req, res, next) => {
 });
 app.use("/host", hostRouter);
 
-app.use(express.static(path.join(rootDir, 'public')))
 
 app.use(errorsController.pageNotFound);
 
