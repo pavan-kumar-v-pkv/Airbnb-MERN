@@ -46,30 +46,51 @@ exports.getHostHomes = (req, res, next) => {
 };
 
 exports.postAddHome = (req, res, next) => {
-  const { houseName, price, location, rating, photoUrl, description } = req.body;
-  const home = new Home({houseName, price, location, rating, photoUrl, description});
+  const { houseName, price, location, rating, description } = req.body;
+  const photo = req.file ? '/uploads/' + req.file.filename : '';
+  console.log('File uploaded:', req.file);
+  
+  const home = new Home({
+    houseName, 
+    price, 
+    location, 
+    rating, 
+    photo, 
+    description
+  });
+  
   home.save().then(() => {
     console.log('Home Saved successfully');
+    res.redirect("/host/host-home-list");
+  }).catch(err => {
+    console.error('Error saving home:', err);
+    res.redirect("/host/add-home");
   });
-
-  res.redirect("/host/host-home-list");
 };
 
 exports.postEditHome = (req, res, next) => {
-  const { id, houseName, price, location, rating, photoUrl, description } = req.body;
+  const { id, houseName, price, location, rating, description } = req.body;
+  let photoPath = req.body.existingPhoto; // Keep existing photo if no new one is uploaded
+  
+  if (req.file) {
+    photoPath = '/uploads/' + req.file.filename; // Use new photo if uploaded
+  }
+  
   Home.findById(id).then((home) => {
     home.houseName = houseName;
     home.price = price;
     home.location = location;
     home.rating = rating;
-    home.photoUrl = photoUrl;
+    home.photo = photoPath;
     home.description = description;
+    
     home.save().then(result => {
       console.log('Home updated ', result);
+      res.redirect("/host/host-home-list");
     }).catch(err => {
       console.log('Error while updating ', err);
-    })
-    res.redirect("/host/host-home-list");
+      res.redirect("/host/host-home-list");
+    });
   }).catch(err => {
     console.log('Error while fetching home for edit ', err);
     res.redirect("/host/host-home-list");
